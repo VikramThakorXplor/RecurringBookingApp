@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct DropDownMenu: View {
-    
     @EnvironmentObject var objGlobal : GlobalClass
     @State private var isOptionVisible: Bool = false
     @State var tag: Int = 0
-
+    @State var isSelected: Bool = false
+    @State var isSelectedIndex: Int = 0
+    
     @Binding public var selectedOption: DropDownMenuOption?
-    @State var isOptionSelected = false
 
     let placeholder:String
     @State  var placeholderValue:String
@@ -43,10 +43,12 @@ struct DropDownMenu: View {
                          GeometryReader { proxy in
                             ScrollView{
                                 LazyVStack(alignment: .leading,spacing: 1) {
-                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],20).padding([.bottom], 10)) {
-                                        ForEach(options) { option in
+                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
+                                        
+                                        ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                                             Button(action: {
                                                 withAnimation {
+                                                    self.isSelectedIndex = index
                                                     selectedOption = option
                                                     self.placeholderValue = option.option
                                                     if self.tag == 1{
@@ -57,18 +59,26 @@ struct DropDownMenu: View {
                                                     self.isOptionVisible.toggle()
                                                 }
                                             }) {
-//                                                RadioButtonWithText(isSelected: $isOptionSelected, text: option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
-                               Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
-                                            }.foregroundColor(.black)
+
+                                                HStack {
+                                                    Image(systemName:  self.isSelectedIndex == index ? "largecircle.fill.circle" : "circle")
+                                                            .onTapGesture {
+                                                                self.isSelected.toggle()
+                                                                self.isSelectedIndex = index
+                                                                self.isOptionVisible.toggle()
+                                                             }
+                                                        Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
+                                                 }
+                                                
+                                             }.foregroundColor(.black)
                                                 .padding(.vertical,5)
                                                 .padding(.horizontal).frame(width: proxy.size.width, height: 40)
                                         }
                                     }
                                 }.padding([.leading, .trailing],-9).background(Color.white).overlay  { RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.black, lineWidth: objGlobal.borderLineWidth)}
-                            }.disableBounces().padding([.top], self.tag == 1 ? -69 : -55)
+                            }.padding([.top], self.tag == 1 ? -68 : -55)
                                  .padding(.vertical, 5).frame(height: (CGFloat(options.count) * 40) + 40)
                         }
-                       
                     }
                 }
             }
@@ -83,22 +93,4 @@ struct DropDownMenu_Previews : PreviewProvider{
             selectedOption: .constant(nil), placeholder: "", placeholderValue: "", options: DropDownMenuOption.arrChildren
         )
     }
-}
-
-extension ScrollView {
-  func disableBounces() -> some View {
-    modifier(DisableBouncesModifier())
-  }
-}
-
-struct DisableBouncesModifier: ViewModifier {
-  func body(content: Content) -> some View {
-    content
-      .onAppear {
-        UIScrollView.appearance().bounces = false
-      }
-      .onDisappear {
-        UIScrollView.appearance().bounces = true
-      }
-  }
 }
