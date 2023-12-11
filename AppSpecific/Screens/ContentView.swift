@@ -24,26 +24,30 @@ struct ContentView: View {
     @State private var strChildName = ""
     @State private var strSelectedTime = ""
     
+    @StateObject var objViewModel = ViewModel()
     public var arrSelectedDays = [String]()
  
-     var arrTemp = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+    var arrTemp = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
 
     var body: some View {
+ 
         NavigationView {
             GeometryReader{ proxy in
                 ZStack{
                     Color.black
+
                 }.frame(width: proxy.size.width,height: 5,alignment: .leading)
                 VStack(alignment: .trailing, spacing: 20.0){
-                    VStack(alignment: .center) {
+                  
+                     VStack(alignment: .center) {
                         Text("New recurring booking").font(.system(size: 16,weight: .bold))
                             .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(.title)
                     }.background(Color(Color.clear))
                     ScrollView() {
-                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "jimmy", placeholder: "Who's using",options: DropDownMenuOption.arrChildren)
+                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "jimmy", placeholder: "Who's using",options: DropDownMenuOption.arrChildren, arrChildren: objGlobal.arrChildren ?? [Children]())
                         // Who is using
                         
-                        DropDownMenu(tag: 2, selectedOption: self.$firstOption, placeholderValue: "", placeholder: "Choose a room",options: DropDownMenuOption.arrSchoolTime)
+                        DropDownMenu(tag: 2, selectedOption: self.$firstOption, placeholderValue: "", placeholder: "Choose a room",options: DropDownMenuOption.arrSchoolTime, arrChildren: objGlobal.arrChildren ?? [Children]())
                         
                         // Start & End Date Label
                         Spacer(minLength: 5)
@@ -78,7 +82,6 @@ struct ContentView: View {
                                 }
                             }.padding([.leading, .trailing], 15)
                         }
-
                         Spacer(minLength: -20)
                         HStack(){
                             Text("Choose days").padding([.leading],15).font(.system(size: 16,weight: .bold)).padding([.top],25).padding([.bottom], 5)
@@ -96,17 +99,28 @@ struct ContentView: View {
                                 .padding([.leading,.trailing],18)
                         }
                     }.clipped()
-                    
+
                     HStack {
                         NavigationLink(destination: BookingDetailsVC()){
-                            Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
+                             
+                             Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
                         }
                     }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? Color(Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1))) :  Color(Color(uiColor: UIColor(red: 0.6588235294, green: 0.6588235294, blue: 0.6588235294, alpha: 1)))).padding([.top, .leading, .trailing], 15)
                     
                     ZStack{
                         Color.black
                     }.frame(width: proxy.size.width,height: 5,alignment: .leading)
-                }//.edgesIgnoringSafeArea(.bottom)
+                }.onAppear{
+                    objViewModel.loadChildrenFromServer { resData in
+                        switch resData {
+                       case .success(let res):
+                           print(res)
+                            objGlobal.arrChildren = res
+                        case .failure(let error):
+                           print(error)
+                       }
+                   }
+                }
             }
 
             var validateAllRequiredFields: Bool {

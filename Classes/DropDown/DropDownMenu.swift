@@ -12,12 +12,14 @@ struct DropDownMenu: View {
     @State private var isOptionVisible: Bool = false
     @State var tag: Int = 0
     @State var isSelected: Bool = false
-    @State var isSelectedIndex: Int = 0    
+    @State var isSelectedIndex: Int = 0
+    @StateObject var objViewModel = ViewModel()
     @Binding public var selectedOption: DropDownMenuOption?
     @State  var placeholderValue:String
 
     let placeholder:String
     let options: [DropDownMenuOption]
+    let arrChildren: [Children]
     var body: some View {
         Button(action: {
             withAnimation {
@@ -43,9 +45,10 @@ struct DropDownMenu: View {
                                 LazyVStack(alignment: .leading,spacing: 1) {
                                     Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
                                         
-                                        ForEach(Array(options.enumerated()), id: \.offset) { index, option in
+                                         ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                                             Button(action: {
                                                 withAnimation {
+                                                    print(self.options[index])
                                                     self.isSelectedIndex = index
                                                     selectedOption = option
                                                     self.placeholderValue = option.option
@@ -54,6 +57,17 @@ struct DropDownMenu: View {
                                                     }else{
                                                         objGlobal.strSelectedTime =  self.placeholderValue
                                                     }
+                                                    
+                                                    objViewModel.loadChildrenFromServer { resData in
+                                                        switch resData {
+                                                       case .success(let res):
+                                                           print(res)
+                                                            objGlobal.arrChildren = res
+                                                        case .failure(let error):
+                                                           print(error)
+                                                       }
+                                                   }
+                                                    
                                                     self.isOptionVisible.toggle()
                                                 }
                                             }) {
@@ -88,7 +102,16 @@ struct DropDownMenu: View {
 struct DropDownMenu_Previews : PreviewProvider{
     static var previews: some View {
         DropDownMenu(
-            selectedOption: .constant(nil), placeholderValue: "", placeholder: "", options: DropDownMenuOption.arrChildren
+            selectedOption: .constant(nil), placeholderValue: "", placeholder: "", options: DropDownMenuOption.arrChildren, arrChildren: [Children]()
         )
+    }
+}
+
+
+
+extension DropDownMenu : ViewModelProtocol{
+    func getChildrenData() -> [Children] {
+     
+        return [Children]()
     }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Foundation
-struct Data : Codable {
+struct ChildData : Codable {
     let children : [Children]?
 
     enum CodingKeys: String, CodingKey {
