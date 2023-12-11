@@ -28,10 +28,10 @@ struct DropDownMenu: View {
         }){
             HStack(){
                 Text(selectedOption == nil ? placeholder : self.tag == 1 ? "Who" : "Where")
-                    .foregroundColor(selectedOption == nil ? .gray : .black).font(.system(size: 14,weight: .regular))
+                    .foregroundColor(.black).font(AppConstants.fontLight16)
                 Spacer()
                 Text(placeholderValue).font(.system(size: 14,weight: .bold))
-                    .foregroundColor(selectedOption == nil ? .gray : .black)
+                    .foregroundColor(.black).font(AppConstants.fontLight16)
             }.frame(height:  self.tag == 1 ? 30 : 20)
         }.padding()
             .overlay {
@@ -43,11 +43,20 @@ struct DropDownMenu: View {
                          GeometryReader { proxy in
                             ScrollView{
                                 LazyVStack(alignment: .leading,spacing: 1) {
-                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
+                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],25).padding([.bottom], 10).padding([.top],-5).font(AppConstants.fontBold16)) {
                                         
                                          ForEach(Array(options.enumerated()), id: \.offset) { index, option in
                                             Button(action: {
                                                 withAnimation {
+                                                    objViewModel.loadRoomsForChildren(strParam: "8b3a437d-ed3e-485a-8130-b6a416d8f09f") { resData in
+                                                        switch resData {
+                                                        case .success(let res):
+                                                            print(res)
+                                                          //  objGlobal.arrChildren = res
+                                                        case .failure(let error):
+                                                            print(error)
+                                                        }
+                                                    }
                                                     print(self.options[index])
                                                     self.isSelectedIndex = index
                                                     selectedOption = option
@@ -57,29 +66,18 @@ struct DropDownMenu: View {
                                                     }else{
                                                         objGlobal.strSelectedTime =  self.placeholderValue
                                                     }
-                                                    
-                                                    objViewModel.loadChildrenFromServer { resData in
-                                                        switch resData {
-                                                       case .success(let res):
-                                                           print(res)
-                                                            objGlobal.arrChildren = res
-                                                        case .failure(let error):
-                                                           print(error)
-                                                       }
-                                                   }
-                                                    
                                                     self.isOptionVisible.toggle()
                                                 }
                                             }) {
 
                                                 HStack {
-                                                    Image(systemName:  self.isSelectedIndex == index ? "largecircle.fill.circle" : "circle")
+                                                    Image(systemName:  self.isSelectedIndex == index ? "largecircle.fill.circle" : "circle").padding([.leading],8)
                                                             .onTapGesture {
                                                                 self.isSelected.toggle()
                                                                 self.isSelectedIndex = index
                                                                 self.isOptionVisible.toggle()
                                                              }
-                                                        Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
+                                                    Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear).font(AppConstants.fontRegular16)
                                                  }
                                                 
                                              }.foregroundColor(.black)

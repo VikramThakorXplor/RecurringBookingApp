@@ -40,8 +40,8 @@ struct ContentView: View {
                 VStack(alignment: .trailing, spacing: 20.0){
                   
                      VStack(alignment: .center) {
-                        Text("New recurring booking").font(.system(size: 16,weight: .bold))
-                            .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(.title)
+                         Text("New recurring booking")
+                              .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(AppConstants.fontBold18)
                     }.background(Color(Color.clear))
                     ScrollView() {
                         DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "jimmy", placeholder: "Who's using",options: DropDownMenuOption.arrChildren, arrChildren: objGlobal.arrChildren ?? [Children]())
@@ -52,9 +52,9 @@ struct ContentView: View {
                         // Start & End Date Label
                         Spacer(minLength: 5)
                         HStack(){
-                            Text("Start Date").frame(width: 100, alignment: .topLeading).font(.system(size: 16,weight: .bold))
+                            Text("Start Date").frame(width: 100, alignment: .topLeading).font(AppConstants.fontBold14)
                             Spacer()
-                            Text("End Date").frame(width: 200, alignment: .topLeading).font(.system(size: 16,weight: .bold))
+                            Text("End Date").font(AppConstants.fontBold14).padding([.trailing], (proxy.size.width/2)-75)
                         }.padding()
                         
                         Spacer(minLength: -10)
@@ -66,7 +66,7 @@ struct ContentView: View {
                                     Image(systemName: "calendar").padding([.leading], -80)
                                     DatePicker("", selection: $startDate, in: Date.now..., displayedComponents: .date)
                                         .padding()
-                                        .accentColor(.green)
+                                        .accentColor(.black)
                                         .background(Color.orange.opacity(0)) .frame(height: 50)
                                 }.overlay {
                                     RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.gray, lineWidth: objGlobal.borderLineWidth)
@@ -101,25 +101,24 @@ struct ContentView: View {
                     }.clipped()
 
                     HStack {
-                        NavigationLink(destination: BookingDetailsVC()){
-                             
+                        NavigationLink(destination: BookingDetailsVC(bookingDetails: BookingDetailsModel(childName: "Vikram", selectedTime: "", startDate: "", endDate: "", selectedDays: "", childID: "", roomID: ""))){
                              Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
                         }
-                    }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? Color(Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1))) :  Color(Color(uiColor: UIColor(red: 0.6588235294, green: 0.6588235294, blue: 0.6588235294, alpha: 1)))).padding([.top, .leading, .trailing], 15)
+                    }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? AppConstants.blueEnableColor :  AppConstants.grayDisableColor).padding([.leading, .trailing], 15).padding([.top],20)
                     
                     ZStack{
                         Color.black
-                    }.frame(width: proxy.size.width,height: 5,alignment: .leading)
+                    }.frame(width: proxy.size.width,height: 0,alignment: .leading)
                 }.onAppear{
-                    objViewModel.loadChildrenFromServer { resData in
+                    objViewModel.loadChildrenFromServer(strParam: "076c0cb9-c60e-48eb-a447-77e85b700d94") { resData in
                         switch resData {
-                       case .success(let res):
-                           print(res)
+                        case .success(let res):
+                            print(res)
                             objGlobal.arrChildren = res
                         case .failure(let error):
-                           print(error)
-                       }
-                   }
+                            print(error)
+                        }
+                    }
                 }
             }
 
