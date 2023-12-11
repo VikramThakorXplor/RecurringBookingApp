@@ -14,6 +14,7 @@ class GlobalClass: ObservableObject {
     @Published var borderRadius: CGFloat = 1.0
     @Published var strSelectedChild: String = ""
     @Published var strSelectedTime: String = ""
+    @Published var arrChildren : [Children]?
     @Published var enableedColor: Color = (Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1)))
     @Published var disbaledColor: Color = (Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1)))
  }

@@ -7,18 +7,24 @@
 
 import SwiftUI
 
-class PostsViewModel: ObservableObject {
-    private let apiManager = APIManager()
-//    @Published var posts: [Post] = []
+protocol ViewModelProtocol {
+    func getChildrenData() -> [Children]
+}
 
-    func fetchPosts() {
-//        apiManager.fetchPosts { [weak self] posts in
-//            DispatchQueue.main.async {
-//                if let posts = posts {
-//                    self?.posts = posts
-//                }
-//            }
-//        }
+class ViewModel : ObservableObject{
+    private let apiManager = APIManager()
+    @State var  resData: [Children]?
+
+    func loadChildrenFromServer(completion: @escaping(Result<[Children],ServiceError>) -> Void)  {
+          apiManager.getChildren { result in
+            switch result {
+            case .success(let modelData):
+                 completion(.success(modelData.data?.children ?? [Children]()))
+                 break
+            case .failure(let error):
+                print("error :\(error)")
+            }
+        }
     }
 }
 
