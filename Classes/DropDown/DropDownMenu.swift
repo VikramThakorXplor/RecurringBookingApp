@@ -42,7 +42,7 @@ struct DropDownMenu: View {
                          GeometryReader { proxy in
                             ScrollView{
                                 LazyVStack(alignment: .leading,spacing: 1) {
-                                    Section(header: Text("Who's going?").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
+                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
                                         ForEach(options) { option in
                                             Button(action: {
                                                 withAnimation {
@@ -62,8 +62,8 @@ struct DropDownMenu: View {
                                                 .padding(.horizontal).frame(width: proxy.size.width, height: 40)
                                         }
                                     }
-                                }.background(Color.red).overlay  { RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.black, lineWidth: objGlobal.borderLineWidth)}
-                            }.padding([.top], -70)
+                                }.padding([.leading, .trailing],-9).background(Color.white).overlay  { RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.black, lineWidth: objGlobal.borderLineWidth)}
+                            }.padding([.top], self.tag == 1 ? -70 : -55)
                                  .padding(.vertical, 5).frame(height: (CGFloat(options.count) * 40))
                         }
                        
