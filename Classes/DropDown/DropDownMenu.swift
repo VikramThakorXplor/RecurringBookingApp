@@ -12,13 +12,11 @@ struct DropDownMenu: View {
     @State private var isOptionVisible: Bool = false
     @State var tag: Int = 0
     @State var isSelected: Bool = false
-    @State var isSelectedIndex: Int = 0
-    
+    @State var isSelectedIndex: Int = 0    
     @Binding public var selectedOption: DropDownMenuOption?
-
-    let placeholder:String
     @State  var placeholderValue:String
 
+    let placeholder:String
     let options: [DropDownMenuOption]
     var body: some View {
         Button(action: {
@@ -90,7 +88,7 @@ struct DropDownMenu: View {
 struct DropDownMenu_Previews : PreviewProvider{
     static var previews: some View {
         DropDownMenu(
-            selectedOption: .constant(nil), placeholder: "", placeholderValue: "", options: DropDownMenuOption.arrChildren
+            selectedOption: .constant(nil), placeholderValue: "", placeholder: "", options: DropDownMenuOption.arrChildren
         )
     }
 }

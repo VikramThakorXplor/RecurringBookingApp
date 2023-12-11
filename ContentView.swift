@@ -40,10 +40,10 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(.title)
                     }.background(Color(Color.clear))
                     ScrollView() {
-                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholder: "Who's using", placeholderValue: "jimmy",options: DropDownMenuOption.arrChildren)
+                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "jimmy", placeholder: "Who's using",options: DropDownMenuOption.arrChildren)
                         // Who is using
                         
-                        DropDownMenu(tag: 2, selectedOption: self.$firstOption, placeholder: "Choose a room", placeholderValue: "",options: DropDownMenuOption.arrSchoolTime)
+                        DropDownMenu(tag: 2, selectedOption: self.$firstOption, placeholderValue: "", placeholder: "Choose a room",options: DropDownMenuOption.arrSchoolTime)
                         
                         // Start & End Date Label
                         Spacer(minLength: 5)
