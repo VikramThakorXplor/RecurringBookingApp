@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct RecurringBookingAppApp: App {
+    @StateObject var objGlobal = GlobalClass()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environmentObject(objGlobal)
         }
     }
 }
