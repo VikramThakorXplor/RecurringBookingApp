@@ -14,6 +14,7 @@ struct DropDownMenu: View {
     @State var tag: Int = 0
 
     @Binding public var selectedOption: DropDownMenuOption?
+    @State var isOptionSelected = false
 
     let placeholder:String
     @State  var placeholderValue:String
@@ -42,7 +43,7 @@ struct DropDownMenu: View {
                          GeometryReader { proxy in
                             ScrollView{
                                 LazyVStack(alignment: .leading,spacing: 1) {
-                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],15).padding([.bottom], 10)) {
+                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room").bold().padding([.leading, .top],20).padding([.bottom], 10)) {
                                         ForEach(options) { option in
                                             Button(action: {
                                                 withAnimation {
@@ -56,15 +57,16 @@ struct DropDownMenu: View {
                                                     self.isOptionVisible.toggle()
                                                 }
                                             }) {
-                                                Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
+//                                                RadioButtonWithText(isSelected: $isOptionSelected, text: option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
+                               Text(option.option).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear)
                                             }.foregroundColor(.black)
                                                 .padding(.vertical,5)
                                                 .padding(.horizontal).frame(width: proxy.size.width, height: 40)
                                         }
                                     }
                                 }.padding([.leading, .trailing],-9).background(Color.white).overlay  { RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.black, lineWidth: objGlobal.borderLineWidth)}
-                            }.padding([.top], self.tag == 1 ? -70 : -55)
-                                 .padding(.vertical, 5).frame(height: (CGFloat(options.count) * 40))
+                            }.disableBounces().padding([.top], self.tag == 1 ? -69 : -55)
+                                 .padding(.vertical, 5).frame(height: (CGFloat(options.count) * 40) + 40)
                         }
                        
                     }
@@ -81,4 +83,22 @@ struct DropDownMenu_Previews : PreviewProvider{
             selectedOption: .constant(nil), placeholder: "", placeholderValue: "", options: DropDownMenuOption.arrChildren
         )
     }
+}
+
+extension ScrollView {
+  func disableBounces() -> some View {
+    modifier(DisableBouncesModifier())
+  }
+}
+
+struct DisableBouncesModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .onAppear {
+        UIScrollView.appearance().bounces = false
+      }
+      .onDisappear {
+        UIScrollView.appearance().bounces = true
+      }
+  }
 }

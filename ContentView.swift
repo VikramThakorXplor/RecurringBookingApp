@@ -18,7 +18,7 @@ struct ContentView: View {
     @State var isSelected: Bool = false
     @State var selected = 0
     @State var isExpanded = false
-    @State private var startDate = Date()
+    @State private var startDate = Date.now
     @State private var endDate = Date()
     
     @State private var strChildName = ""
@@ -35,13 +35,11 @@ struct ContentView: View {
                     Color.black
                 }.frame(width: proxy.size.width,height: 5,alignment: .leading)
                 VStack(alignment: .trailing, spacing: 20.0){
+                    VStack(alignment: .center) {
+                        Text("New recurring booking").font(.system(size: 16,weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(.title)
+                    }.background(Color(Color.clear))
                     ScrollView() {
-                        VStack(alignment: .center) {
-                            Text("New recurring booking").font(.system(size: 16,weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(.title)
-                        }.background(Color(Color.clear))
-                        Spacer(minLength: 20)
-                        
                         DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholder: "Who's using", placeholderValue: "jimmy",options: DropDownMenuOption.arrChildren)
                         // Who is using
                         
@@ -62,7 +60,7 @@ struct ContentView: View {
                             HStack(){
                                 ZStack(){
                                     Image(systemName: "calendar").padding([.leading], -80)
-                                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                                    DatePicker("", selection: $startDate, in: Date.now..., displayedComponents: .date)
                                         .padding()
                                         .accentColor(.green)
                                         .background(Color.orange.opacity(0)) .frame(height: 50)
@@ -71,7 +69,7 @@ struct ContentView: View {
                                 }
                                 ZStack(){
                                     Image(systemName: "calendar").padding([.leading], -80)
-                                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                                    DatePicker("", selection: $endDate,in: startDate... , displayedComponents: .date)
                                         .padding()
                                         .background(Color.orange.opacity(0))
                                         .frame(height: 50)
@@ -80,10 +78,7 @@ struct ContentView: View {
                                 }
                             }.padding([.leading, .trailing], 15)
                         }
-                        
-                        HStack {
-                            Text(validationText).foregroundColor(.red)
-                        }
+
                         Spacer(minLength: -20)
                         HStack(){
                             Text("Choose days").padding([.leading],15).font(.system(size: 16,weight: .bold)).padding([.top],25).padding([.bottom], 5)
@@ -103,39 +98,27 @@ struct ContentView: View {
                     }.clipped()
                     
                     HStack {
-                        Button(action: {
-                            NavigationLink(destination: BookingDetailsVC()){
-                                Text("Navigate")
-                            }
-                        }, label: {
-                            Text("Review bookings").colorMultiply(.white)
-                        }).cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white).disabled(!validateAllRequiredFields)
-                    }.frame(height: 50).background(validateAllRequiredFields ? Color(Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1))) :  Color(Color(uiColor: UIColor(red: 0.6588235294, green: 0.6588235294, blue: 0.6588235294, alpha: 1)))).padding([.top, .leading, .trailing], 15)
+                        NavigationLink(destination: BookingDetailsVC()){
+                            Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
+                        }
+                    }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? Color(Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1))) :  Color(Color(uiColor: UIColor(red: 0.6588235294, green: 0.6588235294, blue: 0.6588235294, alpha: 1)))).padding([.top, .leading, .trailing], 15)
                     
                     ZStack{
                         Color.black
                     }.frame(width: proxy.size.width,height: 5,alignment: .leading)
                 }//.edgesIgnoringSafeArea(.bottom)
             }
-            
-            var validationText: String {
-                if endDate < startDate {
-                    return "End date cannot be earlier than start date."
-                } else {
-                    return ""
-                }
-            }
-            
+
             var validateAllRequiredFields: Bool {
                 var isValidated = false
-                if validationText.count != 0 || objGlobal.strSelectedChild.count == 0  || objGlobal.strSelectedTime.count == 0 {
+                if objGlobal.strSelectedChild.count == 0  || objGlobal.strSelectedTime.count == 0 {
                     isValidated = false
                 } else {
                     isValidated = true
                 }
                 return isValidated
             }
-             
+
         }
     }
 }
