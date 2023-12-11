@@ -9,6 +9,7 @@ import SwiftUI
 
  
 struct BookingDetailsVC: View {
+    let bookingDetails : BookingDetailsModel
     //Declared Global Class object to access it anywhere
     @EnvironmentObject var objGlobal : GlobalClass
  
@@ -44,7 +45,7 @@ struct BookingDetailsVC: View {
                         
                         HStack(){
                             Label(
-                                title: { Text("Jimmy") },
+                                title: { Text("Jimmy").padding([.leading],-15) },
                                 icon: { Image(systemName: "person").padding() }
                             ).frame(width: 120, height: 50, alignment: .leading).frame(height: 50)
                             Spacer(minLength: 20)
@@ -61,8 +62,8 @@ struct BookingDetailsVC: View {
                         Spacer(minLength: 20)
                         VStack(alignment: .leading){
                             HStack{
-                                Text("You are booking 156 days").multilineTextAlignment(.leading).padding([.leading],15).font(.system(size: 15,weight: .semibold))
-                                Spacer(minLength: 5)
+                                Text("    You are ").font(AppConstants.fontRegular14) + Text(String(self.getNumberOfDays())).font(AppConstants.fontBold14) + Text(" days").font(AppConstants.fontRegular14)
+                                  Spacer(minLength: 5)
                             }
                             Spacer(minLength: 10)
                             HStack{
@@ -77,24 +78,63 @@ struct BookingDetailsVC: View {
                         }
                         
                         VStack() {
-                            Spacer(minLength: (proxy.size.height/2)-80)
+                            Spacer(minLength: (proxy.size.height/2) - 130)
                             Button(action: {
                                 // Handle button tap here
                             }) {
                                 Text("Change booking").frame(maxWidth: .infinity).frame(height: 50)
-                            }.foregroundColor((Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1)))).background(.white).border((Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1))),width: objGlobal.borderLineWidth)
+                            }.foregroundColor(AppConstants.blueEnableColor).background(.white).border(AppConstants.blueEnableColor,width: objGlobal.borderLineWidth)
                                 .padding([.leading,.trailing],15)
                             Button(action: {
                                 // Handle button tap here
                             }) {
                                 Text("DONE").frame(maxWidth: .infinity).frame(height: 50)
-                            }.foregroundColor(.white).background((Color(uiColor: UIColor(red: 0.262745098, green: 0.2941176471, blue: 0.6588235294, alpha: 1)))).border(.clear,width: objGlobal.borderLineWidth)
+                            }.foregroundColor(.white).background(AppConstants.blueEnableColor).border(.clear,width: objGlobal.borderLineWidth)
                                 .padding([.leading,.trailing],15)
                         }
                     }.clipped()
                 }//.edgesIgnoringSafeArea(.bottom)
             }
         }
+    }
+    
+    
+ 
+    func numberOfRecurringDays(startDate: Date, endDate: Date, forWeekdays weekdays: Set<Int>) -> Int {
+        let calendar = Calendar.current
+        var count = 0
+        
+        // Iterate through each day between start and end dates
+        calendar.enumerateDates(startingAfter: startDate, matching: .init(hour: 0, minute: 0, second: 0), matchingPolicy: .nextTime) { (date, _, stop) in
+            guard let date = date, date <= endDate else {
+                stop = true
+                return
+            }
+            
+            let weekday = calendar.component(.weekday, from: date)
+            if weekdays.contains(weekday) {
+                count += 1
+            }
+        }
+        
+        return count
+    }
+
+    func getNumberOfDays() -> Int{
+       
+        // Example usage:
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        let startDateString = "2024-01-02"
+        let endDateString = "2024-12-20"
+        var recurringDays = 0
+        if let startDate = dateFormatter.date(from: startDateString),
+            let endDate = dateFormatter.date(from: endDateString) {
+            recurringDays = numberOfRecurringDays(startDate: startDate, endDate: endDate, forWeekdays: [2, 3,4]) // 2 for Monday, 3 for Tuesday
+            print("Number of recurring Mondays and Tuesdays: \(recurringDays)")
+        }
+        return recurringDays
     }
 }
 
