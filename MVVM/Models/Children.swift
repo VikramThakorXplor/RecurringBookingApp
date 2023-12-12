@@ -7,7 +7,9 @@
 
 import SwiftUI
 import Foundation
-struct Children : Codable {
+struct Children : Codable,Hashable, Identifiable {
+    let id: UUID
+ 
     let age : Int?
     let fkey : String?
     let fullName : String?
@@ -22,11 +24,14 @@ struct Children : Codable {
     }
 
     init(from decoder: Decoder) throws {
+        self.id = UUID()
+
         let values = try decoder.container(keyedBy: CodingKeys.self)
         age = try values.decodeIfPresent(Int.self, forKey: .age)
         fkey = try values.decodeIfPresent(String.self, forKey: .fkey)
         fullName = try values.decodeIfPresent(String.self, forKey: .fullName)
         availableRoomsId = try values.decodeIfPresent(String.self, forKey: .availableRoomsId)
     }
+     
 
 }
