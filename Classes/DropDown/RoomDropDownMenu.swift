@@ -1,5 +1,5 @@
 //
-//  DropDownMenu.swift
+//  RoomDropDownMenu.swift
 //  RecurringBookingApp
 //
 //  Created by Vikram Thakor on 09/12/23.
@@ -8,29 +8,29 @@
 import SwiftUI
 import ActivityIndicatorView
 
-struct DropDownMenu: View {
+struct RoomDropDownMenu: View {
     @EnvironmentObject var objGlobal : GlobalClass
     @State private var isOptionVisible: Bool = false
     @State var tag: Int = 0
     @State var isSelected: Bool = false
     @State var isSelectedIndex: Int = 0
     @ObservedObject var objViewModel = ViewModel()
-    @Binding public var selectedOption: DropDownMenuOption?
     @State  var placeholderValue:String
-    @State private var showLoadingIndicator: Bool = true
-    @State private var allowUserInteraction = true
-    
-    let placeholder:String
+    @State  var placeholder:String
+
     let options: [DropDownMenuOption]
-    let arrChildren: [Children]
+
     var body: some View {
         Button(action: {
             withAnimation {
+                if self.objGlobal.arrRooms?.count ?? 0 == 0 {
+                    return
+                }
                 self.isOptionVisible.toggle()
             }
         }){
             HStack(){
-                Text(selectedOption == nil ? placeholder : self.tag == 1 ? "Who" : "Where")
+                Text(  "Where")
                     .foregroundColor(.black).font(AppConstants.fontLight16)
                 Spacer()
                 Text(placeholderValue).font(.system(size: 14,weight: .bold))
@@ -42,81 +42,73 @@ struct DropDownMenu: View {
             }.overlay(alignment: .top){
                 VStack{
                     if self.isOptionVisible {
-                        Spacer(minLength: self.tag == 1 ? 64 : 50)
+                        Spacer(minLength: 50)
                         GeometryReader { proxy in
                             ScrollView{
                                 List {
-                                    Section(header: Text(self.tag == 1 ? "Who's going?" : "Choose a room")
+                                    Section(header: Text("Choose a room")
                                         .padding([.leading],-19)
                                         .padding([.top], -11)
                                         .font(AppConstants.fontBold16)
                                         .foregroundColor(.black)) {
-                                      
-                                        ForEach(self.objGlobal.arrChildren ?? [Children](), id: \.self) { item in
+                                        ForEach(self.objGlobal.arrRooms ?? [BookingRooms](), id: \.self) { item in
+                                            
+                                            let strFinalRoom = "\(item.roomName ?? "")\(" - ")\(self.objGlobal.convertDateAndTime(timeString: item.startTime ?? "") ?? "")\(" - ")\(self.objGlobal.convertDateAndTime(timeString: item.endTime ?? "") ?? "")"
+
                                             Button(action: {
                                                 withAnimation {
-                                                     self.placeholderValue = item.fullName ?? ""
-                                                    objGlobal.strSelectedChildID =  item.id
-
+                                                    self.placeholderValue = strFinalRoom
+                                                    self.placeholder = item.roomName ?? ""
+                                                    
                                                     if self.tag == 1{
                                                         objGlobal.strSelectedChild = self.placeholderValue
                                                     }else{
                                                         objGlobal.strSelectedTime = self.placeholderValue
                                                     }
-                                                    objViewModel.loadRoomsForChildren(strParam: item.availableRoomsId ?? "0") { resData in
-                                                       objGlobal.arrRooms = resData
-                                                     }
+
                                                     self.isOptionVisible.toggle()
+                                                    
                                                 }
                                             })
                                             {
                                                 HStack{
-                                                    Image(systemName:  self.placeholderValue == item.fullName ? "largecircle.fill.circle" : "circle").tint(Color.black)
+                                                    Image(systemName:  self.placeholder == item.roomName ? "largecircle.fill.circle" : "circle").tint(Color.black)
                                                         .onTapGesture {
-                                                            self.placeholderValue = item.fullName ?? ""
+                                                            self.placeholderValue = strFinalRoom
+                                                            self.placeholder = item.roomName ?? ""
+                                                            
                                                             self.isOptionVisible.toggle()
                                                         }
-                                                    Text(item.fullName ?? "").frame(maxWidth: .infinity,alignment: .leading).background(Color.clear).colorMultiply(.black)
+                                                    Text(strFinalRoom).frame(maxWidth: .infinity,alignment: .leading).background(Color.clear).colorMultiply(.black) .listRowSeparator(.hidden, edges: .top)
                                                 }
                                             }.padding([.leading], -20)
                                         }
                                     }
                                 }
-                                .listRowSeparator(.hidden)
-                                .listStyle(PlainListStyle())
+                                 .listStyle(PlainListStyle())
                                 .padding([.leading, .trailing], 15).background(Color.white).overlay  { RoundedRectangle(cornerRadius: objGlobal.borderRadius).stroke(.black, lineWidth: objGlobal.borderLineWidth)}
-                                .frame(height: (CGFloat(self.objGlobal.arrChildren?.count ?? 0) * 40) + 70)
+                                .frame(height: (CGFloat(self.objGlobal.arrRooms!.count ?? 0) * 40) + 60)
                                 .background(Color.white)
                             }
-                            .padding([.top], self.tag == 1 ? -68 : -55)
-                            .padding(.vertical, 5).frame(height: (CGFloat(options.count) * 40) + 40)
+                            .padding([.top],  -55)
+                            .padding(.vertical, 5).frame(height: (CGFloat(7) * 40) + 40)
                             .onAppear(
-                                
-                            )
+                             )
                         }
                     }
                 }
-            }.onAppear{
             }
             .padding(.horizontal)
-            .padding(.bottom, self.isOptionVisible ?  CGFloat(self.options.count * 40) > 300 ? CGFloat(self.options.count * 40)  :   CGFloat(self.options.count * 40) : 0)
+            .padding(.bottom, self.isOptionVisible ? CGFloat(self.objGlobal.arrRooms!.count * 40) + 10 : 0)
     }
 }
 
-struct DropDownMenu_Previews : PreviewProvider{
+struct RoomDropDownMenu_Previews : PreviewProvider{
     static var previews: some View {
-        DropDownMenu(
-            selectedOption: .constant(nil), placeholderValue: "", placeholder: "", options: DropDownMenuOption.arrChildren, arrChildren: [Children]()
+        RoomDropDownMenu(placeholderValue: "", placeholder: "", options: DropDownMenuOption.arrSchoolTime
         )
     }
 }
 
 
-
-extension DropDownMenu : ViewModelProtocol{
-    func getChildrenData() -> [Children] {
-        
-        return [Children]()
-    }
-}
-
+ 

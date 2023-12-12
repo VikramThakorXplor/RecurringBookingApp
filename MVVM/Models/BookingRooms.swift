@@ -8,7 +8,9 @@
 import SwiftUI
 import Foundation
 
-struct BookingRooms : Codable {
+struct BookingRooms : Codable,Hashable, Identifiable {
+    let id: UUID
+
     let fee : String?
     let endTime : String?
     let feeFkey : String?
@@ -27,6 +29,8 @@ struct BookingRooms : Codable {
     }
  
     init(from decoder: Decoder) throws {
+        self.id = UUID()
+
         let values = try decoder.container(keyedBy: CodingKeys.self)
         fee = try values.decodeIfPresent(String.self, forKey: .fee)
         endTime = try values.decodeIfPresent(String.self, forKey: .endTime)

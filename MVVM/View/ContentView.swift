@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+ import ActivityIndicatorView
  
 struct ContentView: View {
     //Declared Global Class object to access it anywhere
@@ -20,11 +20,12 @@ struct ContentView: View {
     @State var isExpanded = false
     @State private var startDate = Date.now
     @State private var endDate = Date()
-    
+    @State private var showLoadingIndicator: Bool = true
+
     @State private var strChildName = ""
     @State private var strSelectedTime = ""
     
-    @StateObject var objViewModel = ViewModel()
+    @ObservedObject var objViewModel = ViewModel()
     public var arrSelectedDays = [String]()
  
     var arrTemp = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
@@ -35,8 +36,7 @@ struct ContentView: View {
             GeometryReader{ proxy in
                 ZStack{
                     Color.black
-
-                }.frame(width: proxy.size.width,height: 5,alignment: .leading)
+                }.frame(width: proxy.size.width,height: 2,alignment: .leading)
                 VStack(alignment: .trailing, spacing: 20.0){
                   
                      VStack(alignment: .center) {
@@ -44,10 +44,9 @@ struct ContentView: View {
                               .frame(maxWidth: .infinity, alignment: .center).padding(EdgeInsets(top: 25, leading: 0 , bottom: 0, trailing: 0)).multilineTextAlignment(.center).font(AppConstants.fontBold18)
                     }.background(Color(Color.clear))
                     ScrollView() {
-                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "jimmy", placeholder: "Who's using",options: DropDownMenuOption.arrChildren, arrChildren: objGlobal.arrChildren ?? [Children]())
-                        // Who is using
-                        
-                        DropDownMenu(tag: 2, selectedOption: self.$firstOption, placeholderValue: "", placeholder: "Choose a room",options: DropDownMenuOption.arrSchoolTime, arrChildren: objGlobal.arrChildren ?? [Children]())
+                        DropDownMenu(tag: 1,selectedOption: self.$firstOption, placeholderValue: "", placeholder: "Who's going?",options: DropDownMenuOption.arrChildren, arrChildren: objGlobal.arrChildren ?? [Children]())
+ 
+                        RoomDropDownMenu(placeholderValue: "Choose a room", placeholder: "", options: DropDownMenuOption.arrChildren)
                         
                         // Start & End Date Label
                         Spacer(minLength: 5)
@@ -75,6 +74,8 @@ struct ContentView: View {
                                     Image(systemName: "calendar").padding([.leading], -80)
                                     DatePicker("", selection: $endDate,in: startDate... , displayedComponents: .date)
                                         .padding()
+                                        .accentColor(.black)
+
                                         .background(Color.orange.opacity(0))
                                         .frame(height: 50)
                                 }.overlay {
@@ -84,12 +85,12 @@ struct ContentView: View {
                         }
                         Spacer(minLength: -20)
                         HStack(){
-                            Text("Choose days").padding([.leading],15).font(.system(size: 16,weight: .bold)).padding([.top],25).padding([.bottom], 5)
+                            Text("Choose days").padding([.leading],15).font(AppConstants.fontBold16).padding([.top], 40).padding([.bottom], 5)
                             Spacer()
                         }
                         
                         HStack( spacing: 0.0 ){
-                            ForEach (0..<arrTemp.count) { index in
+                             ForEach (0..<arrTemp.count) { index in
                                 ButtonDay(name: arrTemp[index])
                             }
                         }.frame(maxWidth: .infinity).background(Color.clear).overlay {
@@ -98,52 +99,50 @@ struct ContentView: View {
                                 .frame(height:40)
                                 .padding([.leading,.trailing],18)
                         }
+                        HStack(alignment: .center){
+                            ActivityIndicatorView(isVisible: $showLoadingIndicator, type: .flickeringDots(count: 9))
+                                 .frame(width: 80.0, height: 80.0)
+                                 .foregroundColor(.orange)
+                        }
                     }.clipped()
-
                     HStack {
-                        NavigationLink(destination: BookingDetailsVC(bookingDetails: BookingDetailsModel(childName: "Vikram", selectedTime: "", startDate: "", endDate: "", selectedDays: "", childID: "", roomID: ""))){
-                             Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
+                        NavigationLink(destination: BookingDetailsVC(startDate: startDate, endDate: endDate,strSelectedChild: objGlobal.strSelectedChild,strSelectedTime: objGlobal.strSelectedTime,arrSelectedDays: objGlobal.arrSelectedDays, strFinalUUID: objGlobal.strSelectedChildID?.uuidString ?? "")) {
+                            Text("Review Booking").cornerRadius(objGlobal.borderRadius).frame(maxWidth: .infinity).frame(maxHeight: .infinity).foregroundColor(.white)
                         }
-                    }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? AppConstants.blueEnableColor :  AppConstants.grayDisableColor).padding([.leading, .trailing], 15).padding([.top],20)
+                    }.disabled(!validateAllRequiredFields).frame(height: 50).background(validateAllRequiredFields ? AppConstants.blueEnableColor :  AppConstants.grayDisableColor).padding([.leading, .trailing], 15).padding([.bottom],5)
+                }
+                .onAppear{
                     
-                    ZStack{
-                        Color.black
-                    }.frame(width: proxy.size.width,height: 0,alignment: .leading)
-                }.onAppear{
-                    objViewModel.loadChildrenFromServer(strParam: "076c0cb9-c60e-48eb-a447-77e85b700d94") { resData in
-                        switch resData {
-                        case .success(let res):
-                            print(res)
-                            objGlobal.arrChildren = res
-                        case .failure(let error):
-                            print(error)
-                        }
-                    }
+                    objViewModel.loadChildrenFromServer(strParam: objGlobal.strURLChildrenParam) { resData in
+                         objGlobal.arrChildren = resData
+                        showLoadingIndicator = false
+                     }
                 }
             }
 
+            var validationText: Bool {
+                if endDate < startDate {
+                    return false
+                } else {
+                    return true
+                }
+            }
+            
             var validateAllRequiredFields: Bool {
                 var isValidated = false
-                if objGlobal.strSelectedChild.count == 0  || objGlobal.strSelectedTime.count == 0 {
+                if   objGlobal.strSelectedChild.count == 0  || objGlobal.strSelectedTime.count == 0 {
                     isValidated = false
-                } else {
+                }else if (objGlobal.arrSelectedDays.count == 0){
+                    isValidated = false
+                } else if !validationText {
+                    isValidated = false
+                }else{
                     isValidated = true
                 }
                 return isValidated
             }
-
         }
     }
 }
 
-#Preview {
-    ContentView()
-}
-
-
  
- 
-extension String{
-    
-}
-  

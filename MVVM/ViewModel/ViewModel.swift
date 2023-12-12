@@ -14,24 +14,24 @@ protocol ViewModelProtocol {
 class ViewModel : ObservableObject{
     private let apiManager = APIManager()
     @State var  resData: [Children]?
-
-    func loadChildrenFromServer(strParam:String, completion: @escaping(Result<[Children],ServiceError>) -> Void)  {
+ 
+    func loadChildrenFromServer(strParam:String, completion: @escaping([Children]) -> Void)  {
         apiManager.getChildren(strParam: strParam) { result in
             switch result {
             case .success(let modelData):
-                 completion(.success(modelData.data?.children ?? [Children]()))
+                  completion((modelData.data?.children ?? [Children]()))
                  break
             case .failure(let error):
                 print("error :\(error)")
             }
         }
     }
-    
-    func loadRoomsForChildren(strParam:String, completion: @escaping(Result<[BookingRooms],ServiceError>) -> Void)  {
+ 
+    func loadRoomsForChildren(strParam:String, completion: @escaping([BookingRooms]) -> Void)  {
         apiManager.getRoomsChildren(strParam: strParam) { result in
             switch result {
             case .success(let modelData):
-                completion(.success(modelData.bookingRooms ?? [BookingRooms]()))
+                completion(modelData.data?.bookingRooms ?? [BookingRooms]())
                  break
             case .failure(let error):
                 print("error :\(error)")

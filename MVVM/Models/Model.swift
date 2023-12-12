@@ -17,8 +17,6 @@ class Model: ObservableObject {
 }
 
 class APIManager {
- 
-    
     func getChildren(strParam: String, completion: @escaping (Result<ModelData,ServiceError>) -> Void) {
         let strParam = String(format: "https://api.myjson.online/v1/records/%@", strParam)
         var request =  URLRequest(url: URL(string:strParam)!)
@@ -44,7 +42,7 @@ class APIManager {
         }.resume()
      }
     
-    func getRoomsChildren(strParam: String, completion: @escaping (Result<BookingRoomsData,ServiceError>) -> Void) {
+    func getRoomsChildren(strParam: String, completion: @escaping (Result<RoomModelData,ServiceError>) -> Void) {
         let strParam = String(format: "https://api.myjson.online/v1/records/%@", strParam)
         var request =  URLRequest(url: URL(string:strParam)!)
         request.httpMethod = "GET"
@@ -58,7 +56,7 @@ class APIManager {
             if let responseData = response as? HTTPURLResponse {
                 if responseData.statusCode == 200, let data = data{
                     do {
-                        let modeldata = try JSONDecoder().decode(BookingRoomsData.self, from: data)
+                        let modeldata = try JSONDecoder().decode(RoomModelData.self, from: data)
                         completion(.success(modeldata))
                      } catch {
                         print("Error\(error.localizedDescription)")
